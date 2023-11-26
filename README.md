@@ -1,70 +1,28 @@
-# Getting Started with Create React App
+## 실행방법
+1. npm install
+2. npm run start
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 앱 구조
+project-root/
+|-- assets/
+|-- nuo_rev2/
+|   |-- main/
+|       |-- main.ino
+|-- src/
+|   |-- assets/
+|       |-- mercedes.svg
+|       |-- react.svg
+|   |-- components/
+|       |-- ParkingSpot.js
+|   |-- App.js
+|   |-- index.js
+|   |-- firebase.js
+|-- package.json
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 앱 구조 설명
+- **src/assets/:** 리액트 앱에서 사용될 정적 파일들을 저장하는 디렉토리입니다. 예를 들어, SVG 이미지 파일들이 여기에 위치할 수 있습니다.
+- **src/components/:** 리액트 컴포넌트들을 저장하는 디렉토리입니다. 예를 들어, **`ParkingSpot.js`** 같은 파일이 여기에 위치할 수 있습니다.
+- **src/App.js:** 메인 앱 컴포넌트입니다. 다른 컴포넌트들을 이곳에서 조합하고, 라우팅을 설정하고, 상태를 관리할 수 있습니다.
+- **src/index.js:** 앱을 렌더링하는 엔트리 포인트입니다. 주로 **`ReactDOM.render`** 함수가 이 파일에서 호출됩니다.
+- **src/firebase.js:** Firebase와 관련된 설정 및 함수들을 포함할 수 있는 파일입니다.
+- **package.json:** 프로젝트의 의존성 및 스크립트 등을 관리하는 파일입니다.
