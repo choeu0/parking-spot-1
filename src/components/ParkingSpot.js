@@ -1,24 +1,36 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Text, Box, useMantineTheme } from '@mantine/core';
 import Mercedes from '../assets/mercedes.svg';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getDatabase, get, ref } from '../firebase';
+import { getDatabase, ref, onValue } from '../firebase'; // Removed unused 'get' import
 
 // 주차 데이터를 가져오는 비동기 함수
 const fetchParkingData = async () => {
   const db = getDatabase();
-  const response = await get(ref(db, 'parking_spot_state/1'));
+  const response = await ref(db, 'parking_spot_state').get(); // Removed '1' from the path
   return response.val();
 };
 
 function ParkingSpot() {
   // react-query 훅을 사용하여 주차 데이터를 가져오기
+  const queryClient = useQueryClient();
   const { data: parkingData, isLoading } = useQuery({
     queryKey: '[parkingData]',
     queryFn: fetchParkingData,
   });
   const theme = useMantineTheme();
+
+  useEffect(() => {
+    const db = getDatabase();
+    const docRef = ref(db, 'parking_spot_state');
+
+    const unsubscribe = onValue(docRef, (snapshot) => {
+      queryClient.setQueryData('[parkingData]', snapshot.val());
+    });
+
+    return () => unsubscribe();
+  }, [queryClient]);
 
   return (
     // 주차 공간 상태를 나타내는 컴포넌트
