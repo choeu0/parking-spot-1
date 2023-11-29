@@ -8,7 +8,7 @@ import { getDatabase, ref, onValue } from '../firebase'; // Removed unused 'get'
 // 주차 데이터를 가져오는 비동기 함수
 const fetchParkingData = async () => {
   const db = getDatabase();
-  const response = await ref(db, 'parking_spot_state').get(); // Removed '1' from the path
+  const response = await ref(db, 'parking_spot_state').get(); 
   return response.val();
 };
 
@@ -59,7 +59,7 @@ function ParkingSpot() {
               >
                 {/* 주차 공간이 차지된 경우 애니메이션과 함께 차 이미지 표시 */}
                 <AnimatePresence>
-                  {status === 'OCCUPIED' && (
+                  {status === true && (
                     <motion.div
                       key={`${spotName}-motion`}
                       initial={{ x: 0, opacity: 0 }}
@@ -87,7 +87,7 @@ function ParkingSpot() {
                   )}
                 </AnimatePresence>
                 {/* 주차 공간이 비어있는 경우 'Available' 텍스트 표시 */}
-                {status === 'FREE' && (
+                {status === false && (
                   <Text
                     style={{
                       position: 'absolute',
