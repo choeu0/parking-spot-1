@@ -1,4 +1,4 @@
-## 실행방법
+## 실행방법(PowerShell)
 1. npm install
 2. npm run start
 
