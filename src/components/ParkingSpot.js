@@ -145,7 +145,6 @@ function ParkingSpot() {
                 )}
                 {/* 주차 공간 이름 표시 */}
                 <Text
-                  // fz={fontSize} // 글자 크기를 변수로 설정
                   style={{
                     position: 'absolute',
                     bottom: -5,
