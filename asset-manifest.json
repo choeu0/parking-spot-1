@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/choeu0/parking-spot-1/static/css/main.38581675.css",
-    "main.js": "/choeu0/parking-spot-1/static/js/main.24b01a68.js",
+    "main.js": "/choeu0/parking-spot-1/static/js/main.09bb0440.js",
     "static/media/mercedes.svg": "/choeu0/parking-spot-1/static/media/mercedes.16230ce013a065734b9c0767f9df6c64.svg",
     "index.html": "/choeu0/parking-spot-1/index.html",
     "main.38581675.css.map": "/choeu0/parking-spot-1/static/css/main.38581675.css.map",
-    "main.24b01a68.js.map": "/choeu0/parking-spot-1/static/js/main.24b01a68.js.map"
+    "main.09bb0440.js.map": "/choeu0/parking-spot-1/static/js/main.09bb0440.js.map"
   },
   "entrypoints": [
     "static/css/main.38581675.css",
-    "static/js/main.24b01a68.js"
+    "static/js/main.09bb0440.js"
   ]
 }
