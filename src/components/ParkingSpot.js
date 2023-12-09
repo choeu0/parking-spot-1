@@ -4,7 +4,6 @@ import { Text, Box, useMantineTheme } from '@mantine/core';
 import Mercedes from '../assets/mercedes.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDatabase, ref, onValue } from '../firebase'; 
-import { useMediaQuery } from 'react-responsive'; // react-responsive 라이브러리에서 useMediaQuery 훅을 임포트
 import ResponsiveStyle from './ResponsiveStyle';
 import './Font.css';
 
@@ -22,19 +21,19 @@ function ParkingSpot() {
     queryFn: fetchParkingData,
   });
   const theme = useMantineTheme();
-  const [reg1, setReg1] = React.useState(false); // A1 주차 공간의 등록 상태
-  const [reg2, setReg2] = React.useState(false); // A2 주차 공간의 등록 상태
+
+  // 주차 공간의 등록 상태
+  const [reg1, setReg1] = React.useState(false); 
+  const [reg2, setReg2] = React.useState(false);
 
   useEffect(() => {
     const db = getDatabase();
     
-    // A1 주차 공간 등록 상태 가져오기
+    // 주차 공간 등록 상태 가져오기
     const reg1Ref = ref(db, 'parking_spot_registered/A1');
     onValue(reg1Ref, (snapshot) => {
       setReg1(snapshot.val());
     });
-
-    // A2 주차 공간 등록 상태 가져오기
     const reg2Ref = ref(db, 'parking_spot_registered/A2');
     onValue(reg2Ref, (snapshot) => {
       setReg2(snapshot.val());
@@ -49,6 +48,7 @@ function ParkingSpot() {
     return () => unsubscribe();
   }, [queryClient]);
 
+  // ResponsiveStyle에서 정의한 스타일 변수들을 가져옴
   const {
     spotWidth,
     spotHeight,
@@ -89,14 +89,16 @@ function ParkingSpot() {
                 style={{
                   borderBottom: '1px solid',
                   borderColor: theme.colors.gray[1],
-                  width: spotWidth, // 주차 공간의 너비를 변수로 설정
+                  width: spotWidth,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: spotName === 'A1' ? 'flex-start' : 'flex-end',
-                  height: spotHeight, // 주차 공간의 높이를 변수로 설정
+                  height: spotHeight, 
                   position: 'relative',
-                  backgroundColor: (state === true && spotName === 'A1' && reg1) || (state === true && spotName === 'A2' && reg2) ? 'green' : (state === false ? 'white' : 'red'),
+                  backgroundColor: (state === true && spotName === 'A1' && reg1) || 
+                                  (state === true && spotName === 'A2' && reg2) ? 
+                                  'green' : (state === false ? 'white' : 'red'),
                 }}
               >
                 {/* 주차 공간이 차지된 경우 애니메이션과 함께 차 이미지 표시 */}
@@ -118,7 +120,7 @@ function ParkingSpot() {
                       {/* 차 이미지 표시 */}
                       <img
                         src={Mercedes}
-                        height={spotHeight * 0.6} // 차 이미지의 높이를 주차 공간의 높이에 비례하게 설정
+                        height={spotHeight * 0.6} 
                         alt="mercedes car top view"
                         style={{
                           transform: spotName === 'A1' ? undefined : 'rotate(180deg)',
@@ -161,7 +163,9 @@ function ParkingSpot() {
               {state && (
                 <div style={{ 
                   marginTop: '5px', 
-                  backgroundColor: (state === true && spotName === 'A1' && reg1) || (state === true && spotName === 'A2' && reg2) ? 'green' : (state === false ? 'white' : 'red'),
+                  backgroundColor: (state === true && spotName === 'A1' && reg1) || 
+                                  (state === true && spotName === 'A2' && reg2) ? 
+                                  'green' : (state === false ? 'white' : 'red'),
                   color: 'white', 
                   padding: padding, 
                   borderRadius: '5px',

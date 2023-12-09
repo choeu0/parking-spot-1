@@ -10,7 +10,7 @@
 #define SSID "uyeong"
 #define SSID_PASSWORD "dndud516"
 // Firebase 키 설정
-#define PARKING_SPOT_STATE_KEY "parking_spot_state"
+#define PARKING_SPOT_STATE_KEY "/parking_spot_state"
 #define A1 "A1"
 #define A2 "A2"
 
@@ -19,6 +19,9 @@
 #define A1_ECHO_PIN 3
 #define A2_TRIG_PIN 4
 #define A2_ECHO_PIN 5
+
+int count1=0;
+int count2=0;
 
 NewPing a1Sensor(A1_TRIG_PIN, A1_ECHO_PIN);
 NewPing a2Sensor(A2_TRIG_PIN, A2_ECHO_PIN);
@@ -35,13 +38,18 @@ Sensor a1SensorStruct = { A1_TRIG_PIN, A1_ECHO_PIN, false };
 Sensor a2SensorStruct = { A2_TRIG_PIN, A2_ECHO_PIN, false };
 
 FirebaseData firebaseData;
+Servo myservo;
 
 // 시간 변수 추가
 unsigned long last = 0;
 
+String path1 = String(PARKING_SPOT_STATE_KEY) + "/" + "A1";
+String path2 = String(PARKING_SPOT_STATE_KEY) + "/" + "A2";
+
 // 초기 설정 함수
 void setup() {
   Serial.begin(9600);  // 보정된 통신 속도
+  myservo.attach(12);
 
   // WiFi 연결
   WiFi.begin(SSID, SSID_PASSWORD);
@@ -60,29 +68,34 @@ void setup() {
 // 주차 공간 상태 Firebase 업데이트 함수
 void publish_parking_spot_state(char* parking_spot_name, bool state) {
   String path = String(PARKING_SPOT_STATE_KEY) + "/" + String(parking_spot_name);
-  Firebase.setBool(firebaseData, path.c_str(), state);
+  return Firebase.setBool(firebaseData, path.c_str(), state);
 }
 
 // 루프 함수
 void loop() {
 
-  // 일정 주기로 센서 상태 업데이트
-  if (millis() > last + 3000) {
-    last = millis();
+ 
+  
 
     int distanceA1 = a1Sensor.ping_cm();  // 거리 측정
     int distanceA2 = a2Sensor.ping_cm();
 
     // A1 주차 공간 상태 업데이트
-    if (distanceA1 < 10 && !a1SensorStruct.state) {
+    if (distanceA1 < 16 && !a1SensorStruct.state) {
+      if(count1==0){
+      myservo.write(0);
       a1SensorStruct.state = true;
-      publish_parking_spot_state(A1, true);
+      Firebase.setBool(firebaseData, path1.c_str(), true);
+      count1 = 1;
+      delay(10000);}
+      a1SensorStruct.state = true;
+      Firebase.setBool(firebaseData, path1.c_str(), true);
     }
-    if (distanceA1 >= 10 && a1SensorStruct.state) {
+    if (distanceA1 >= 16 && a1SensorStruct.state) {
       a1SensorStruct.state = false;
-      publish_parking_spot_state(A1, false);
+      Firebase.setBool(firebaseData, path1.c_str(), false);
+      count1 = 0;
     }
-
     // Serial Monitor
 
     Serial.print("Setting state for A1 to ");
@@ -92,13 +105,19 @@ void loop() {
     Serial.println(distanceA1);
 
     // A2 주차 공간 상태 업데이트
-    if (distanceA2 < 10 && !a2SensorStruct.state) {
-      a2SensorStruct.state = true;
-      publish_parking_spot_state(A2, true);
+    if (distanceA2 < 16 && !a2SensorStruct.state) {
+      if(count2 == 0){
+        myservo.write(163);
+        a2SensorStruct.state = true;
+        Firebase.setBool(firebaseData, path2.c_str(), true);
+        count2 = 1;}
+        a2SensorStruct.state = true;
+        Firebase.setBool(firebaseData, path2.c_str(), true);
     }
-    if (distanceA2 >= 10 && a2SensorStruct.state) {
+    if (distanceA2 >= 16 && a2SensorStruct.state) {
       a2SensorStruct.state = false;
-      publish_parking_spot_state(A2, false);
+      Firebase.setBool(firebaseData, path2.c_str(), false);
+      count2 = 0;
     }
 
     // Serial Monitor
@@ -108,5 +127,5 @@ void loop() {
 
     Serial.print("Distance: ");
     Serial.println(distanceA2);
-  }
+  
 }
