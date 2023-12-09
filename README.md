@@ -33,5 +33,5 @@ project-root/
 - **src/firebase.js:** Firebase와 관련된 설정 및 함수들을 포함할 수 있는 파일입니다.
 - **package.json:** 프로젝트의 의존성 및 스크립트 등을 관리하는 파일입니다.
 
-## Refernce
+## Reference
 https://github.com/koutselakismanos/IoTParkingLot.git
