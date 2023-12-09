@@ -2,6 +2,12 @@
 1. npm install
 2. npm run start
 
+## Database
+![Database](/assets/db.jpg)
+
+## UML
+![UML](/assets/uml.jpg)
+
 ## 앱 구조
 project-root/
 |-- assets/
