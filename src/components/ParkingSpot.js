@@ -1,45 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Text, Box, useMantineTheme } from '@mantine/core';
 import Mercedes from '../assets/mercedes.svg';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getDatabase, ref, onValue } from '../firebase'; 
+import { getDatabase, ref, onValue } from '../firebase';
 import ResponsiveStyle from './ResponsiveStyle';
 import './Font.css';
 
-// 주차 데이터를 가져오는 비동기 함수
-const fetchParkingData = async () => {
+const fetchParkingData = async (path) => {
   const db = getDatabase();
-  const response = await ref(db, 'parking_spot_state').get(); 
-  return response.val();
+  const snapshot = await ref(db, path).get();
+  return snapshot.val();
+};
+
+const useFirebaseRealtime = (path) => {
+  const [value, setValue] = useState(false);
+  useEffect(() => {
+    const db = getDatabase();
+    const reference = ref(db, path);
+    const unsubscribe = onValue(reference, (snapshot) => {
+      setValue(snapshot.val());
+    });
+    return () => unsubscribe();
+  }, [path]);
+
+  return value;
 };
 
 function ParkingSpot() {
   const queryClient = useQueryClient();
+  const theme = useMantineTheme();
+  const styles = ResponsiveStyle();
+
+  // 네 개의 주차 구역 상태 가져오기
+  const reg1 = useFirebaseRealtime('parking_spot_registered/A1');
+  const reg2 = useFirebaseRealtime('parking_spot_registered/A2');
+  const reg3 = useFirebaseRealtime('parking_spot_registered/A3');
+  const reg4 = useFirebaseRealtime('parking_spot_registered/A4');
+
+  // 전체 주차 상태 가져오기
   const { data: parkingData, isLoading } = useQuery({
     queryKey: '[parkingData]',
-    queryFn: fetchParkingData,
+    queryFn: () => fetchParkingData('parking_spot_state'),
   });
-  const theme = useMantineTheme();
 
-  // 주차 공간의 등록 상태
-  const [reg1, setReg1] = React.useState(false); 
-  const [reg2, setReg2] = React.useState(false);
-
+  // Firebase 상태 업데이트
   useEffect(() => {
     const db = getDatabase();
-    
-    // 주차 공간 등록 상태 가져오기
-    const reg1Ref = ref(db, 'parking_spot_registered/A1');
-    onValue(reg1Ref, (snapshot) => {
-      setReg1(snapshot.val());
-    });
-    const reg2Ref = ref(db, 'parking_spot_registered/A2');
-    onValue(reg2Ref, (snapshot) => {
-      setReg2(snapshot.val());
-    });
-
-    // 주차 데이터 변경 시 쿼리 데이터 업데이트
     const docRef = ref(db, 'parking_spot_state');
     const unsubscribe = onValue(docRef, (snapshot) => {
       queryClient.setQueryData('[parkingData]', snapshot.val());
@@ -48,139 +55,119 @@ function ParkingSpot() {
     return () => unsubscribe();
   }, [queryClient]);
 
-  // ResponsiveStyle에서 정의한 스타일 변수들을 가져옴
-  const {
-    spotWidth,
-    spotHeight,
-    fontSize,
-    titleFontSize,
-    padding,
-    margin,
-    motionPos,
-  } = ResponsiveStyle();
+  if (isLoading) return <p>Loading...</p>;
 
   return (
-    // 주차 공간 상태를 나타내는 컴포넌트
-    <Box component="div" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Text 
-        style={{
-          fontFamily: "Black Han Sans",
-          fontSize: titleFontSize,
-        }}
-      >
+    <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Text style={{ fontFamily: "Black Han Sans", fontSize: styles.titleFontSize }}>
         주차장 차량 관리
       </Text>
-      {isLoading && <p>Loading...</p>}
-      {parkingData && (
-        <div style={{ 
-          display: 'flex', justifyContent: 'center' }}>
-          {Object.entries(parkingData).map(([spotName, state]) => (
-            <div 
-              key={spotName}
-              style={{
-                marginRight: spotName === 'A1' ? margin : undefined,
-                marginLeft: spotName === 'A2' ? margin : undefined,
-              }}
-            >
-              {/* 각 주차 공간을 나타내는 박스 */}
-              <Box
-                key={spotName}
-                component="div"
-                style={{
-                  borderBottom: '1px solid',
-                  borderColor: theme.colors.gray[1],
-                  width: spotWidth,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: spotName === 'A1' ? 'flex-start' : 'flex-end',
-                  height: spotHeight, 
-                  position: 'relative',
-                  backgroundColor: (state === true && spotName === 'A1' && reg1) || 
-                                  (state === true && spotName === 'A2' && reg2) ? 
-                                  'green' : (state === false ? 'white' : 'red'),
-                }}
-              >
-                {/* 주차 공간이 차지된 경우 애니메이션과 함께 차 이미지 표시 */}
-                <AnimatePresence>
-                  {state === true && (
-                    <motion.div
-                      key={`${spotName}-motion`}
-                      initial={{ x: 0, opacity: 0 }}
-                      animate={{ x: spotName === 'A2' ? -20 : 20, opacity: 1 }}
-                      exit={{ x: 0, opacity: 0 }}
-                      transition={{ duration: 1, type: 'spring', damping: '10' }}
-                      style={{
-                        position: 'relative',
-                        left: spotName === 'A2' ? undefined : -motionPos,
-                        right: spotName === 'A2' ? -motionPos : undefined,
-                        alignItems: 'center',
-                      }}
-                    >
-                      {/* 차 이미지 표시 */}
-                      <img
-                        src={Mercedes}
-                        height={spotHeight * 0.6} 
-                        alt="mercedes car top view"
-                        style={{
-                          transform: spotName === 'A1' ? undefined : 'rotate(180deg)',
-                          filter: `drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.4)`,
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                {/* 주차 공간이 비어있는 경우 'Available' 텍스트 표시 */}
-                {state === false && (
-                  <Text
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      color: theme.colors.gray[9],
-                      fontSize: fontSize,
-                    }}
-                  >
-                    Available
-                  </Text>
-                )}
-                {/* 주차 공간 이름 표시 */}
-                <Text
-                  style={{
-                    position: 'absolute',
-                    bottom: -5,
-                    left: spotName === 'A2' ? undefined : 5,
-                    right: spotName === 'A2' ? 5 : undefined,
-                    color: theme.colors.gray[6],
-                    fontSize: fontSize,
-                  }}
-                >
-                  {spotName}
-                </Text>
-              </Box>
-              {/* "등록차량" 또는 "비등록차량" 표시 */}
-              {state && (
-                <div style={{ 
-                  marginTop: '5px', 
-                  backgroundColor: (state === true && spotName === 'A1' && reg1) || 
-                                  (state === true && spotName === 'A2' && reg2) ? 
-                                  'green' : (state === false ? 'white' : 'red'),
-                  color: 'white', 
-                  padding: padding, 
-                  borderRadius: '5px',
-                  fontSize: fontSize,
-                  textAlign: 'center',
-                }}>
-                  {state === true && (spotName === 'A1' ? reg1 : reg2) ? '등록차량' : '비등록차량'}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateRows: 'repeat(2, 1fr)',
+          gridTemplateAreas: `
+            "A1 A3"
+            "A2 A4"
+          `,
+          gap: styles.gridGap,
+          justifyItems: 'center'
+        }}
+      >
+        {/* 주차 구역 박스에 각각 위치 지정 */}
+        <ParkingSpotBox spotName="A1" state={parkingData?.A1} registered={reg1} styles={styles} theme={theme} />
+        <ParkingSpotBox spotName="A3" state={parkingData?.A3} registered={reg3} styles={styles} theme={theme} />
+        <ParkingSpotBox spotName="A2" state={parkingData?.A2} registered={reg2} styles={styles} theme={theme} />
+        <ParkingSpotBox spotName="A4" state={parkingData?.A4} registered={reg4} styles={styles} theme={theme} />
+      </div>
     </Box>
   );
 }
+
+const ParkingSpotBox = ({ spotName, state, registered, styles, theme }) => (
+  <div
+    style={{
+      gridArea: spotName,
+      margin: '10px', // 개별 박스마다 여백을 위해 10px 마진 추가
+      width: styles.spotWidth,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: ['A1', 'A2'].includes(spotName) ? 'flex-start' : 'flex-end',
+    }}
+  >
+    <Box
+      style={{
+        borderBottom: '1px solid',
+        borderColor: theme.colors.gray[1],
+        height: styles.spotHeight,
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        backgroundColor: state ? (registered ? 'green' : 'red') : 'white',
+        ...styles.centerBox
+      }}
+    >
+      <AnimatePresence>
+        {state && (
+          <ParkingCarImage spotName={spotName} styles={styles} />
+        )}
+      </AnimatePresence>
+      {!state && (
+        <Text style={{ ...styles.centerAbsolute, fontSize: styles.fontSize }}>
+          Available
+        </Text>
+      )}
+      <Text style={{
+        position: 'absolute',
+        bottom: -5,
+        [spotName === 'A1' || spotName === 'A2' ? 'left' : 'right']: 5,
+        color: theme.colors.gray[6],
+        fontSize: styles.fontSize,
+      }}>
+        {spotName}
+      </Text>
+    </Box>
+    <ParkingStatusBox state={state} registered={registered} styles={styles} />
+  </div>
+);
+
+const ParkingCarImage = ({ spotName, styles }) => (
+  <motion.div
+    initial={{ x: 0, opacity: 0 }}
+    animate={{ x: ['A3', 'A4'].includes(spotName) ? -20 : 20, opacity: 1 }}
+    exit={{ x: 0, opacity: 0 }}
+    transition={{ duration: 1, type: 'spring', damping: 10 }}
+    style={{
+      position: 'relative',
+      left: ['A1', 'A2'].includes(spotName) ? -styles.motionPos : undefined,
+      right: ['A3', 'A4'].includes(spotName) ? -styles.motionPos : undefined,
+    }}
+  >
+    <img
+      src={Mercedes}
+      height={styles.spotHeight * 0.6}
+      alt="mercedes car top view"
+      style={{
+        transform: ['A1', 'A2'].includes(spotName) ? 'none' : 'rotate(180deg)',
+        filter: 'drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.4))',
+      }}
+    />
+  </motion.div>
+);
+
+const ParkingStatusBox = ({ state, registered, styles }) => (
+  <div style={{
+    marginTop: '5px',
+    backgroundColor: state ? (registered ? 'green' : 'red') : 'white',
+    color: 'white',
+    padding: styles.padding,
+    borderRadius: '5px',
+    fontSize: styles.fontSize,
+    textAlign: 'center',
+  }}>
+    {state ? (registered ? '등록차량' : '비등록차량') : ''}
+  </div>
+);
 
 export default ParkingSpot;
