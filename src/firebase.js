@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref, get, onValue  } from "firebase/database"; 
+import { getFirestore } from "firebase/firestore";
+import { getDatabase, ref, get, onValue, set  } from "firebase/database"; 
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -16,7 +16,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-export { getDatabase, ref, get, onValue  }; // 변경된 부분
+const dbFirestore = getFirestore(app);
+
+export { dbFirestore, getDatabase, ref, get, onValue, set  }; // 변경된 부분
 export default app;

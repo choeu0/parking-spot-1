@@ -1,27 +1,29 @@
 import React from 'react';
-import ParkingSpot from './components/ParkingSpot.js';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '@mantine/core';
-import { useMediaQuery } from 'react-responsive'; // 추가
+import { useMediaQuery } from 'react-responsive';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// QueryClient의 새 인스턴스 생성
+import HomePage from './components/HomePage';
+import ParkingSpot from './components/ParkingSpot';
+import CarRegistration from './components/CarRegistration';
+
 const queryClient = new QueryClient();
 
 function App() {
-  // 추가: 화면 크기 감지
   const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
 
   return (
-    // react-query 기능을 활성화하기 위해 전체 앱을 QueryClientProvider로 래핑
     <QueryClientProvider client={queryClient}>
-      {/* Mantine 스타일링을 활성화하기 위해 전체 앱을 MantineProvider로 래핑 */}
       <MantineProvider>
-        <div className="App">
-          {/* 추가: isMobile을 ParkingSpot 컴포넌트로 전달 */}
-          <header className="App-header">
-            <ParkingSpot isMobile={isMobile} />
-          </header>
-        </div>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/parkingspot" element={<ParkingSpot isMobile={isMobile} />} />
+            <Route path="/carregistration" element={<CarRegistration />} />
+          </Routes>
+        </Router>
       </MantineProvider>
     </QueryClientProvider>
   );

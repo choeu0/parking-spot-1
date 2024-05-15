@@ -5,6 +5,8 @@ import Mercedes from '../assets/mercedes.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDatabase, ref, onValue } from '../firebase';
 import ResponsiveStyle from './ResponsiveStyle';
+import CarRegistration from './CarRegistration';
+import { Badge, Offcanvas, Button } from 'react-bootstrap';
 import './Font.css';
 
 const fetchParkingData = async (path) => {
@@ -28,6 +30,10 @@ const useFirebaseRealtime = (path) => {
 };
 
 function ParkingSpot() {
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   const queryClient = useQueryClient();
   const theme = useMantineTheme();
   const styles = ResponsiveStyle();
@@ -55,13 +61,21 @@ function ParkingSpot() {
     return () => unsubscribe();
   }, [queryClient]);
 
+  // 사용 가능한 주차 공간 수 계산
+  const availableSpots = parkingData ? Object.values(parkingData).filter(state => !state).length : 0;
+  const totalSpots = parkingData ? Object.keys(parkingData).length : 4; // 데이터가 로드되지 않았다면 4개로 가정
+
   if (isLoading) return <p>Loading...</p>;
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Text style={{ fontFamily: "Black Han Sans", fontSize: styles.titleFontSize }}>
+      {/* <Text style={{ fontFamily: "Black Han Sans", fontSize: styles.titleFontSize }}>
         주차장 차량 관리
-      </Text>
+      </Text> */}
+      <h2 style={{ fontFamily: "Black Han Sans", fontSize: styles.titleFontSize }}>주차장 차량 관리</h2>
+      <Badge pill bg="success" style={{ fontSize: '1rem', marginBottom: '10px' }}>
+        이용 가능 대수: {availableSpots}/{totalSpots}
+      </Badge>
       <div
         style={{
           display: 'grid',
@@ -81,6 +95,21 @@ function ParkingSpot() {
         <ParkingSpotBox spotName="A2" state={parkingData?.A2} registered={reg2} styles={styles} theme={theme} />
         <ParkingSpotBox spotName="A4" state={parkingData?.A4} registered={reg4} styles={styles} theme={theme} />
       </div>
+      <Button variant="primary" onClick={handleShow} style={{
+        position: 'absolute',
+        right: '20px',
+        bottom: '20px'
+      }}>
+        +
+      </Button>
+      <Offcanvas show={show} onHide={handleClose} placement="end">
+        <Offcanvas.Header closeButton>
+          {/* <Offcanvas.Title>차량 등록</Offcanvas.Title> */}
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <CarRegistration />
+        </Offcanvas.Body>
+      </Offcanvas>
     </Box>
   );
 }
